@@ -1,3 +1,21 @@
 <resources>
-    <string name="app_name">MyDemoApp</string>
+    <string name="app_name">Просмажка</string>
+
+    <string name="main_title">Просмажка</string>
+    <string name="main_logo_description">Логотип Просмажка</string>
+    <string name="main_settings_description">Налаштування</string>
+    <string name="main_headline">Дай нам свій плейліст. Ми його просмажимо.</string>
+    <string name="main_subtitle">AI чесно скаже, що думає про твій музичний смак. Обери, як додати плейліст:</string>
+    <string name="main_or">або</string>
+
+    <string name="screenshot_card_title">Скріншот плейлиста</string>
+    <string name="screenshot_card_description">З галереї. Найкраще — альбомна орієнтація, щоб влізло більше треків.</string>
+    <string name="screenshot_card_button">Обрати з галереї</string>
+
+    <string name="share_card_title">Поділитися з музичного додатку</string>
+    <string name="share_card_description">Відкрий плейліст у своєму музичному додатку</string>
+    <string name="share_card_step_1">Плейліст → меню «⋯»</string>
+    <string name="share_card_step_2">«Поділитися»</string>
+    <string name="share_card_step_3">Обери «Просмажка»</string>
+    <string name="share_card_button">Вставити посилання</string>
 </resources>
