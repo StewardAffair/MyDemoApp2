@@ -41,4 +41,7 @@
     <string name="settings_example_medium_well">Цей плейліст звучить так, ніби його склав алгоритм, якого попросили не напружуватись.</string>
     <string name="settings_example_well_done">Якщо цей плейліст — твоя особистість, то співчуваю. Навіть шафл відмовляється це грати.</string>
     <string name="settings_applies_note">Застосується до наступного плейлиста.</string>
+
+    <string name="playlist_title">Плейліст</string>
+    <string name="playlist_link_label">Отримане посилання</string>
 </resources>
