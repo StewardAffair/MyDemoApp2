@@ -42,6 +42,15 @@
     <string name="settings_example_well_done">Якщо цей плейліст — твоя особистість, то співчуваю. Навіть шафл відмовляється це грати.</string>
     <string name="settings_applies_note">Застосується до наступного плейлиста.</string>
 
-    <string name="playlist_title">Плейліст</string>
-    <string name="playlist_link_label">Отримане посилання</string>
+    <string name="playlist_title">Просмажка</string>
+    <string name="playlist_source_share">Через «Поділитися»</string>
+    <string name="playlist_label">Плейлист</string>
+    <string name="playlist_name_placeholder">[Назва плейлиста]</string>
+    <string name="playlist_meta_placeholder">[Музичний сервіс] · [N] треків</string>
+    <string name="playlist_verdict_title">Вердикт</string>
+    <string name="playlist_verdict_badge">Medium · 3/5</string>
+    <string name="playlist_verdict_placeholder">Цей плейлист звучить як радіо в таксі, яке ніхто не наважується перемкнути. Усе приємне, нічого не запам’ятовується. Ризикни хоча б одним треком, якого немає в «Популярному».</string>
+    <string name="playlist_share_button">Поділитися</string>
+    <string name="playlist_roast_again_button">Просмажити ще</string>
+    <string name="playlist_another_button">Інший плейлист</string>
 </resources>

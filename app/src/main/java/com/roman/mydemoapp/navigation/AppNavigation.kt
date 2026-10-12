@@ -43,7 +43,8 @@ fun AppNavigation(incomingLink: String?, onIncomingLinkHandled: () -> Unit) {
         ) { entry ->
             PlaylistScreen(
                 url = entry.arguments?.getString(Routes.PLAYLIST_ARG).orEmpty(),
-                onBackClick = { navController.popBackStack() }
+                onBackClick = { navController.popBackStack() },
+                onSettingsClick = { navController.navigate(Routes.SETTINGS) }
             )
         }
     }
