@@ -36,7 +36,7 @@ import com.roman.mydemoapp.ui.theme.AppTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MainScreen() {
+fun MainScreen(onSettingsClick: () -> Unit) {
     Scaffold(
         topBar = {
             Column {
@@ -65,7 +65,7 @@ fun MainScreen() {
                         }
                     },
                     actions = {
-                        IconButton(onClick = { /* TODO open settings */ }) {
+                        IconButton(onClick = onSettingsClick) {
                             Icon(
                                 imageVector = Icons.Default.Settings,
                                 contentDescription = stringResource(R.string.main_settings_description)
@@ -133,6 +133,6 @@ private fun OrDivider() {
 @Composable
 private fun MainScreenPreview() {
     AppTheme {
-        MainScreen()
+        MainScreen(onSettingsClick = {})
     }
 }

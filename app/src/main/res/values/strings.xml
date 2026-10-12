@@ -18,4 +18,27 @@
     <string name="share_card_step_2">«Поділитися»</string>
     <string name="share_card_step_3">Обери «Просмажка»</string>
     <string name="share_card_button">Вставити посилання</string>
+
+    <string name="settings_title">Налаштування</string>
+    <string name="settings_back_description">Назад</string>
+    <string name="settings_roast_title">Ступінь просмажки</string>
+    <string name="settings_roast_description">Наскільки жорстко AI говоритиме про твій музичний смак.</string>
+    <string name="settings_roast_counter">%1$d / %2$d</string>
+    <string name="settings_level_rare">Rare</string>
+    <string name="settings_level_medium_rare">Medium Rare</string>
+    <string name="settings_level_medium">Medium</string>
+    <string name="settings_level_medium_well">Medium Well</string>
+    <string name="settings_level_well_done">Well done</string>
+    <string name="settings_level_rare_description">М’яко й по-доброму</string>
+    <string name="settings_level_medium_rare_description">Легкі підколки</string>
+    <string name="settings_level_medium_description">Чесно й з гумором</string>
+    <string name="settings_level_medium_well_description">Гостро й без жалю</string>
+    <string name="settings_level_well_done_description">Повна просмажка</string>
+    <string name="settings_example_label">Приклад вердикту</string>
+    <string name="settings_example_rare">Приємний плейліст! Трохи передбачуваний, але в ньому відчувається тепло.</string>
+    <string name="settings_example_medium_rare">Плейліст непоганий, хоча кілька треків явно потрапили сюди з ностальгії.</string>
+    <string name="settings_example_medium">Половина треків — ті самі три виконавці, що й у кожному «вечірньому» плейлисті. Сміливості — нуль, ностальгії — на два життя.</string>
+    <string name="settings_example_medium_well">Цей плейліст звучить так, ніби його склав алгоритм, якого попросили не напружуватись.</string>
+    <string name="settings_example_well_done">Якщо цей плейліст — твоя особистість, то співчуваю. Навіть шафл відмовляється це грати.</string>
+    <string name="settings_applies_note">Застосується до наступного плейлиста.</string>
 </resources>
