@@ -23,8 +23,11 @@ Use the Gradle wrapper from the repo root:
 
 Code lives under `app/src/main/java/com/roman/mydemoapp/`:
 
-- `MainActivity.kt` — entry point (also contains a leftover `Greeting` composable/preview from the project template).
+- `MainActivity.kt` — entry point; forwards share/deep-link intents to the activity-scoped `LinkViewModel`.
 - `mainscreen/` — the main screen (`MainScreen` is a `Scaffold` with a `TopAppBar`) and its components such as `ScreenshotCard`. Screens are organized as one package per screen.
+
 - `ui/theme/` — `AppTheme` (`Theme.kt`), `Color.kt`, `Type.kt`. Wrap all UI/previews in `AppTheme`.
+
+Architecture is lean MVVM (no DI): each screen with state has a `XViewModel` exposing `StateFlow<XUiState>` (plus a `Channel`-backed `events` flow for one-shots), a stateful `XScreen` that creates it via `viewModel { }` and collects with `collectAsStateWithLifecycle()`, and a stateless `XContent` that previews and tests use. `SettingsViewModel` persists the roast level through the `SettingsStore` interface (DataStore impl). ViewModel unit tests live in `app/src/test` and use `MainDispatcherRule`.
 
 Note: `MainScreen.kt` uses `androidx.compose.material.icons.filled.*`; `material-icons-extended` is not in the catalog, so check the dependency before using icons beyond the core set.
