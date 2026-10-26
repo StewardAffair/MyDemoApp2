@@ -3,6 +3,8 @@ package com.roman.mydemoapp.navigation
 import android.net.Uri
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavType
 import androidx.navigation.navArgument
 import androidx.navigation.compose.NavHost
@@ -22,12 +24,13 @@ object Routes {
 }
 
 @Composable
-fun AppNavigation(incomingLink: String?, onIncomingLinkHandled: () -> Unit) {
+fun AppNavigation(linkViewModel: LinkViewModel) {
     val navController = rememberNavController()
+    val incomingLink by linkViewModel.incomingLink.collectAsStateWithLifecycle()
     LaunchedEffect(incomingLink) {
-        if (incomingLink != null) {
-            navController.navigate(Routes.playlist(incomingLink))
-            onIncomingLinkHandled()
+        incomingLink?.let { link ->
+            navController.navigate(Routes.playlist(link))
+            linkViewModel.onLinkHandled()
         }
     }
     NavHost(navController = navController, startDestination = Routes.MAIN) {
@@ -40,9 +43,8 @@ fun AppNavigation(incomingLink: String?, onIncomingLinkHandled: () -> Unit) {
         composable(
             route = Routes.PLAYLIST,
             arguments = listOf(navArgument(Routes.PLAYLIST_ARG) { type = NavType.StringType })
-        ) { entry ->
+        ) {
             PlaylistScreen(
-                url = entry.arguments?.getString(Routes.PLAYLIST_ARG).orEmpty(),
                 onBackClick = { navController.popBackStack() },
                 onSettingsClick = { navController.navigate(Routes.SETTINGS) }
             )

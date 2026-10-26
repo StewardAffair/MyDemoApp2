@@ -28,38 +28,41 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableFloatStateOf
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.roman.mydemoapp.R
 import com.roman.mydemoapp.ui.theme.AppTheme
+import kotlin.math.roundToInt
 
-private enum class RoastLevel(
-    @StringRes val title: Int,
-    @StringRes val description: Int,
-    @StringRes val example: Int
-) {
-    Rare(R.string.settings_level_rare, R.string.settings_level_rare_description, R.string.settings_example_rare),
-    MediumRare(R.string.settings_level_medium_rare, R.string.settings_level_medium_rare_description, R.string.settings_example_medium_rare),
-    Medium(R.string.settings_level_medium, R.string.settings_level_medium_description, R.string.settings_example_medium),
-    MediumWell(R.string.settings_level_medium_well, R.string.settings_level_medium_well_description, R.string.settings_example_medium_well),
-    WellDone(R.string.settings_level_well_done, R.string.settings_level_well_done_description, R.string.settings_example_well_done)
+@Composable
+fun SettingsScreen(onBackClick: () -> Unit) {
+    val context = LocalContext.current
+    val viewModel = viewModel { SettingsViewModel(DataStoreSettingsStore(context)) }
+    val state by viewModel.uiState.collectAsStateWithLifecycle()
+    SettingsContent(
+        level = state.level,
+        onLevelChange = viewModel::onLevelChange,
+        onBackClick = onBackClick
+    )
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SettingsScreen(onBackClick: () -> Unit) {
+internal fun SettingsContent(
+    level: RoastLevel,
+    onLevelChange: (Int) -> Unit,
+    onBackClick: () -> Unit
+) {
     val levels = RoastLevel.entries
-    var sliderValue by rememberSaveable { mutableFloatStateOf(RoastLevel.Medium.ordinal.toFloat()) }
-    val level = levels[sliderValue.toInt()]
 
     Scaffold(
         topBar = {
@@ -132,8 +135,8 @@ fun SettingsScreen(onBackClick: () -> Unit) {
                 )
                 Spacer(Modifier.height(16.dp))
                 Slider(
-                    value = sliderValue,
-                    onValueChange = { sliderValue = it },
+                    value = level.ordinal.toFloat(),
+                    onValueChange = { onLevelChange(it.roundToInt()) },
                     valueRange = 0f..(levels.size - 1).toFloat(),
                     steps = levels.size - 2,
                     colors = SliderDefaults.colors(
@@ -214,8 +217,8 @@ private fun SliderLabel(@StringRes text: Int) {
 
 @Preview(showBackground = true, widthDp = 390, heightDp = 844)
 @Composable
-private fun SettingsScreenPreview() {
+private fun SettingsContentPreview() {
     AppTheme {
-        SettingsScreen(onBackClick = {})
+        SettingsContent(level = RoastLevel.Medium, onLevelChange = {}, onBackClick = {})
     }
 }

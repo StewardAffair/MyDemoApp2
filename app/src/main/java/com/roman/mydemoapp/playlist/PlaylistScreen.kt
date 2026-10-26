@@ -1,5 +1,6 @@
 package com.roman.mydemoapp.playlist
 
+import android.content.Intent
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -35,15 +36,18 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.roman.mydemoapp.R
 import com.roman.mydemoapp.mainscreen.OptionCard
 import com.roman.mydemoapp.ui.theme.AppTheme
@@ -52,11 +56,37 @@ private val PlaylistCardColor = Color(0xFF1C1612)
 private val CoverColor = Color(0xFF7B3A1C)
 private val CoverIconColor = Color(0xFFF7C4A8)
 
-// Playlist data is placeholder until the link is parsed; [url] is the received link.
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PlaylistScreen(
-    url: String,
+    onBackClick: () -> Unit,
+    onSettingsClick: () -> Unit = {},
+    onAnotherPlaylistClick: () -> Unit = onBackClick
+) {
+    val viewModel = viewModel<PlaylistViewModel>()
+    val context = LocalContext.current
+    LaunchedEffect(viewModel) {
+        viewModel.events.collect { event ->
+            when (event) {
+                is PlaylistEvent.Share -> {
+                    val send = Intent(Intent.ACTION_SEND)
+                        .setType("text/plain")
+                        .putExtra(Intent.EXTRA_TEXT, event.text)
+                    context.startActivity(Intent.createChooser(send, null))
+                }
+            }
+        }
+    }
+    PlaylistContent(
+        onBackClick = onBackClick,
+        onSettingsClick = onSettingsClick,
+        onShareClick = viewModel::onShareClick,
+        onAnotherPlaylistClick = onAnotherPlaylistClick
+    )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+internal fun PlaylistContent(
     onBackClick: () -> Unit,
     onSettingsClick: () -> Unit = {},
     onShareClick: () -> Unit = {},
@@ -279,8 +309,8 @@ private fun VerdictButton(text: Int, icon: ImageVector, onClick: () -> Unit) {
 
 @Preview(showBackground = true, widthDp = 390, heightDp = 844)
 @Composable
-private fun PlaylistScreenPreview() {
+private fun PlaylistContentPreview() {
     AppTheme {
-        PlaylistScreen(url = "https://music.youtube.com/playlist?list=PL123", onBackClick = {})
+        PlaylistContent(onBackClick = {})
     }
 }
