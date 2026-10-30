@@ -44,13 +44,32 @@
 
     <string name="playlist_title">Просмажка</string>
     <string name="playlist_source_share">Через «Поділитися»</string>
+    <string name="playlist_source_screenshot">Зі скріншота</string>
+    <string name="playlist_unknown_title">Без назви</string>
+    <string name="playlist_loading">Просмажуємо твій плейлист…</string>
+    <string name="playlist_retry_button">Спробувати ще</string>
     <string name="playlist_label">Плейлист</string>
-    <string name="playlist_name_placeholder">[Назва плейлиста]</string>
-    <string name="playlist_meta_placeholder">[Музичний сервіс] · [N] треків</string>
     <string name="playlist_verdict_title">Вердикт</string>
-    <string name="playlist_verdict_badge">Medium · 3/5</string>
-    <string name="playlist_verdict_placeholder">Цей плейлист звучить як радіо в таксі, яке ніхто не наважується перемкнути. Усе приємне, нічого не запам’ятовується. Ризикни хоча б одним треком, якого немає в «Популярному».</string>
+    <string name="playlist_verdict_badge">%1$s · %2$d/5</string>
     <string name="playlist_share_button">Поділитися</string>
     <string name="playlist_roast_again_button">Просмажити ще</string>
     <string name="playlist_another_button">Інший плейлист</string>
+
+    <plurals name="playlist_tracks">
+        <item quantity="one">%d трек</item>
+        <item quantity="few">%d треки</item>
+        <item quantity="many">%d треків</item>
+        <item quantity="other">%d треку</item>
+    </plurals>
+
+    <string name="main_no_link_in_clipboard">У буфері обміну немає посилання</string>
+
+    <string name="error_no_network">Не вдалося зʼєднатися з мережею. Перевір інтернет і спробуй ще раз.</string>
+    <string name="error_unauthorized">Ключі API недійсні або не налаштовані. Перевір local.properties.</string>
+    <string name="error_rate_limited">Забагато запитів. Спробуй за хвилину.</string>
+    <string name="error_playlist_not_found">Плейлист не знайдено. Він має бути публічним або за посиланням.</string>
+    <string name="error_unsupported_link">Поки що підтримуються лише плейлисти YouTube Music. Спробуй скріншот.</string>
+    <string name="error_not_a_playlist">На зображенні не видно списку треків. Спробуй інший скріншот.</string>
+    <string name="error_bad_response">Не вдалося розібрати відповідь. Спробуй ще раз.</string>
+    <string name="error_unknown">Щось пішло не так. Спробуй ще раз.</string>
 </resources>

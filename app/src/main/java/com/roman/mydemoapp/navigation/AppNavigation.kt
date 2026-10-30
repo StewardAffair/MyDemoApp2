@@ -19,8 +19,11 @@ object Routes {
     const val SETTINGS = "settings"
     const val PLAYLIST_ARG = "url"
     const val PLAYLIST = "playlist/{$PLAYLIST_ARG}"
+    const val SCREENSHOT_ARG = "uri"
+    const val SCREENSHOT = "screenshot/{$SCREENSHOT_ARG}"
 
     fun playlist(url: String) = "playlist/${Uri.encode(url)}"
+    fun screenshot(uri: String) = "screenshot/${Uri.encode(uri)}"
 }
 
 @Composable
@@ -35,7 +38,11 @@ fun AppNavigation(linkViewModel: LinkViewModel) {
     }
     NavHost(navController = navController, startDestination = Routes.MAIN) {
         composable(Routes.MAIN) {
-            MainScreen(onSettingsClick = { navController.navigate(Routes.SETTINGS) })
+            MainScreen(
+                onSettingsClick = { navController.navigate(Routes.SETTINGS) },
+                onLinkPasted = { navController.navigate(Routes.playlist(it)) },
+                onScreenshotPicked = { navController.navigate(Routes.screenshot(it)) }
+            )
         }
         composable(Routes.SETTINGS) {
             SettingsScreen(onBackClick = { navController.popBackStack() })
@@ -43,6 +50,15 @@ fun AppNavigation(linkViewModel: LinkViewModel) {
         composable(
             route = Routes.PLAYLIST,
             arguments = listOf(navArgument(Routes.PLAYLIST_ARG) { type = NavType.StringType })
+        ) {
+            PlaylistScreen(
+                onBackClick = { navController.popBackStack() },
+                onSettingsClick = { navController.navigate(Routes.SETTINGS) }
+            )
+        }
+        composable(
+            route = Routes.SCREENSHOT,
+            arguments = listOf(navArgument(Routes.SCREENSHOT_ARG) { type = NavType.StringType })
         ) {
             PlaylistScreen(
                 onBackClick = { navController.popBackStack() },

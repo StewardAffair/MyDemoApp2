@@ -4,9 +4,12 @@ import android.content.Intent
 
 private val urlRegex = Regex("https?://\\S+")
 
+/** Returns the first http(s) URL found in [this] text, if any. */
+fun String.extractUrl(): String? = urlRegex.find(this)?.value
+
 /** Extracts a playlist URL from a share (ACTION_SEND) or deep link (ACTION_VIEW) intent. */
 fun Intent.extractPlaylistLink(): String? = when (action) {
-    Intent.ACTION_SEND -> getStringExtra(Intent.EXTRA_TEXT)?.let { urlRegex.find(it)?.value }
+    Intent.ACTION_SEND -> getStringExtra(Intent.EXTRA_TEXT)?.extractUrl()
     Intent.ACTION_VIEW -> dataString
     else -> null
 }
