@@ -24,6 +24,7 @@ import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material3.Button
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -37,6 +38,7 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -47,9 +49,22 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.lifecycle.createSavedStateHandle
 import com.roman.mydemoapp.R
 import com.roman.mydemoapp.mainscreen.OptionCard
+import com.roman.mydemoapp.roast.data.PlaylistRepositoryImpl
+import com.roman.mydemoapp.roast.data.RoastRepositoryImpl
+import com.roman.mydemoapp.roast.domain.model.RoastError
+import com.roman.mydemoapp.roast.domain.model.RoastedPlaylist
+import com.roman.mydemoapp.roast.domain.usecase.RoastPlaylistUseCase
+import com.roman.mydemoapp.roast.domain.usecase.RoastScreenshotUseCase
+import com.roman.mydemoapp.settings.data.SettingsDataSource
+import com.roman.mydemoapp.settings.data.SettingsRepositoryImpl
+import com.roman.mydemoapp.settings.domain.model.RoastLevel
+import com.roman.mydemoapp.settings.domain.usecase.GetRoastLevelUseCase
+import com.roman.mydemoapp.settings.presentation.title
 import com.roman.mydemoapp.ui.theme.AppTheme
 
 private val PlaylistCardColor = Color(0xFF1C1612)
@@ -62,8 +77,17 @@ fun PlaylistScreen(
     onSettingsClick: () -> Unit = {},
     onAnotherPlaylistClick: () -> Unit = onBackClick
 ) {
-    val viewModel = viewModel<PlaylistViewModel>()
     val context = LocalContext.current
+    val viewModel = viewModel {
+        val getRoastLevel = GetRoastLevelUseCase(SettingsRepositoryImpl(SettingsDataSource(context)))
+        val roastRepository = RoastRepositoryImpl(context)
+        PlaylistViewModel(
+            source = PlaylistSource.from(createSavedStateHandle()),
+            roastPlaylist = RoastPlaylistUseCase(PlaylistRepositoryImpl(), roastRepository, getRoastLevel),
+            roastScreenshot = RoastScreenshotUseCase(roastRepository, getRoastLevel)
+        )
+    }
+    val state by viewModel.uiState.collectAsStateWithLifecycle()
     LaunchedEffect(viewModel) {
         viewModel.events.collect { event ->
             when (event) {
@@ -77,9 +101,11 @@ fun PlaylistScreen(
         }
     }
     PlaylistContent(
+        state = state,
         onBackClick = onBackClick,
         onSettingsClick = onSettingsClick,
         onShareClick = viewModel::onShareClick,
+        onRoastAgainClick = viewModel::onRoastAgainClick,
         onAnotherPlaylistClick = onAnotherPlaylistClick
     )
 }
@@ -87,6 +113,7 @@ fun PlaylistScreen(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 internal fun PlaylistContent(
+    state: PlaylistUiState,
     onBackClick: () -> Unit,
     onSettingsClick: () -> Unit = {},
     onShareClick: () -> Unit = {},
@@ -138,11 +165,18 @@ internal fun PlaylistContent(
                     .weight(1f)
                     .verticalScroll(rememberScrollState())
             ) {
-                SourceChip()
+                SourceChip(fromScreenshot = state.fromScreenshot)
                 Spacer(Modifier.height(16.dp))
-                PlaylistInfoCard()
-                Spacer(Modifier.height(16.dp))
-                VerdictCard(onShareClick = onShareClick, onRoastAgainClick = onRoastAgainClick)
+                val roasted = state.roasted
+                when {
+                    state.isLoading -> LoadingCard()
+                    state.error != null -> ErrorCard(state.error, onRetryClick = onRoastAgainClick)
+                    roasted != null -> {
+                        PlaylistInfoCard(roasted)
+                        Spacer(Modifier.height(16.dp))
+                        VerdictCard(roasted, onShareClick = onShareClick, onRoastAgainClick = onRoastAgainClick)
+                    }
+                }
             }
             Spacer(Modifier.height(16.dp))
             Button(
@@ -163,7 +197,7 @@ internal fun PlaylistContent(
 }
 
 @Composable
-private fun SourceChip() {
+private fun SourceChip(fromScreenshot: Boolean) {
     Surface(
         shape = CircleShape,
         color = MaterialTheme.colorScheme.surfaceVariant
@@ -174,7 +208,9 @@ private fun SourceChip() {
         ) {
             Icon(Icons.Default.Share, contentDescription = null, modifier = Modifier.size(16.dp))
             Text(
-                text = stringResource(R.string.playlist_source_share),
+                text = stringResource(
+                    if (fromScreenshot) R.string.playlist_source_screenshot else R.string.playlist_source_share
+                ),
                 modifier = Modifier.padding(start = 8.dp),
                 style = MaterialTheme.typography.labelLarge,
                 fontWeight = FontWeight.SemiBold
@@ -184,7 +220,7 @@ private fun SourceChip() {
 }
 
 @Composable
-private fun PlaylistInfoCard() {
+private fun PlaylistInfoCard(roasted: RoastedPlaylist) {
     Surface(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(28.dp),
@@ -218,23 +254,29 @@ private fun PlaylistInfoCard() {
                     color = Color.White.copy(alpha = 0.7f)
                 )
                 Text(
-                    text = stringResource(R.string.playlist_name_placeholder),
+                    text = roasted.title ?: stringResource(R.string.playlist_unknown_title),
                     style = MaterialTheme.typography.titleLarge,
                     fontWeight = FontWeight.Bold,
                     color = Color.White
                 )
-                Text(
-                    text = stringResource(R.string.playlist_meta_placeholder),
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = Color.White.copy(alpha = 0.6f)
-                )
+                roasted.trackCount?.let { count ->
+                    Text(
+                        text = LocalContext.current.resources.getQuantityString(R.plurals.playlist_tracks, count, count),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = Color.White.copy(alpha = 0.6f)
+                    )
+                }
             }
         }
     }
 }
 
 @Composable
-private fun VerdictCard(onShareClick: () -> Unit, onRoastAgainClick: () -> Unit) {
+private fun VerdictCard(
+    roasted: RoastedPlaylist,
+    onShareClick: () -> Unit,
+    onRoastAgainClick: () -> Unit
+) {
     OptionCard {
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -266,7 +308,7 @@ private fun VerdictCard(onShareClick: () -> Unit, onRoastAgainClick: () -> Unit)
                 color = MaterialTheme.colorScheme.primaryContainer
             ) {
                 Text(
-                    text = stringResource(R.string.playlist_verdict_badge),
+                    text = stringResource(R.string.playlist_verdict_badge, stringResource(roasted.level.title), roasted.score),
                     modifier = Modifier.padding(horizontal = 14.dp, vertical = 8.dp),
                     style = MaterialTheme.typography.labelLarge,
                     fontWeight = FontWeight.Bold,
@@ -276,7 +318,7 @@ private fun VerdictCard(onShareClick: () -> Unit, onRoastAgainClick: () -> Unit)
         }
         Spacer(Modifier.height(16.dp))
         Text(
-            text = stringResource(R.string.playlist_verdict_placeholder),
+            text = roasted.text,
             style = MaterialTheme.typography.bodyLarge
         )
         Spacer(Modifier.height(16.dp))
@@ -284,6 +326,35 @@ private fun VerdictCard(onShareClick: () -> Unit, onRoastAgainClick: () -> Unit)
             VerdictButton(R.string.playlist_share_button, Icons.Default.Share, onShareClick)
             VerdictButton(R.string.playlist_roast_again_button, Icons.Default.Refresh, onRoastAgainClick)
         }
+    }
+}
+
+@Composable
+private fun LoadingCard() {
+    OptionCard {
+        Column(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            CircularProgressIndicator()
+            Text(
+                text = stringResource(R.string.playlist_loading),
+                style = MaterialTheme.typography.bodyLarge
+            )
+        }
+    }
+}
+
+@Composable
+private fun ErrorCard(error: RoastError, onRetryClick: () -> Unit) {
+    OptionCard {
+        Text(
+            text = stringResource(error.message),
+            style = MaterialTheme.typography.bodyLarge
+        )
+        Spacer(Modifier.height(16.dp))
+        VerdictButton(R.string.playlist_retry_button, Icons.Default.Refresh, onRetryClick)
     }
 }
 
@@ -311,6 +382,18 @@ private fun VerdictButton(text: Int, icon: ImageVector, onClick: () -> Unit) {
 @Composable
 private fun PlaylistContentPreview() {
     AppTheme {
-        PlaylistContent(onBackClick = {})
+        PlaylistContent(
+            state = PlaylistUiState(
+                isLoading = false,
+                roasted = RoastedPlaylist(
+                    title = "Вечірній чіл",
+                    trackCount = 42,
+                    level = RoastLevel.Medium,
+                    score = 3,
+                    text = "Цей плейлист звучить як радіо в таксі, яке ніхто не наважується перемкнути."
+                )
+            ),
+            onBackClick = {}
+        )
     }
 }
