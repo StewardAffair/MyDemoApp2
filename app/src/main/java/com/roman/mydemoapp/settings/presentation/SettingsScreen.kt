@@ -1,4 +1,4 @@
-package com.roman.mydemoapp.settings
+package com.roman.mydemoapp.settings.presentation
 
 import androidx.annotation.StringRes
 import androidx.compose.foundation.BorderStroke
@@ -40,13 +40,21 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.roman.mydemoapp.R
+import com.roman.mydemoapp.settings.data.SettingsDataSource
+import com.roman.mydemoapp.settings.data.SettingsRepositoryImpl
+import com.roman.mydemoapp.settings.domain.model.RoastLevel
+import com.roman.mydemoapp.settings.domain.usecase.GetRoastLevelUseCase
+import com.roman.mydemoapp.settings.domain.usecase.SetRoastLevelUseCase
 import com.roman.mydemoapp.ui.theme.AppTheme
 import kotlin.math.roundToInt
 
 @Composable
 fun SettingsScreen(onBackClick: () -> Unit) {
     val context = LocalContext.current
-    val viewModel = viewModel { SettingsViewModel(DataStoreSettingsStore(context)) }
+    val viewModel = viewModel {
+        val repository = SettingsRepositoryImpl(SettingsDataSource(context))
+        SettingsViewModel(GetRoastLevelUseCase(repository), SetRoastLevelUseCase(repository))
+    }
     val state by viewModel.uiState.collectAsStateWithLifecycle()
     SettingsContent(
         level = state.level,

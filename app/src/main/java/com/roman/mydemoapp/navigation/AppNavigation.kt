@@ -12,7 +12,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.roman.mydemoapp.mainscreen.MainScreen
 import com.roman.mydemoapp.playlist.PlaylistScreen
-import com.roman.mydemoapp.settings.SettingsScreen
+import com.roman.mydemoapp.settings.presentation.SettingsScreen
 
 object Routes {
     const val MAIN = "main"

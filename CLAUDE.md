@@ -26,9 +26,10 @@ Code lives under `app/src/main/java/com/roman/mydemoapp/`:
 - `MainActivity.kt` — entry point; forwards share/deep-link intents to the activity-scoped `LinkViewModel`.
 - `mainscreen/` — the main screen (`MainScreen` is a `Scaffold` with a `TopAppBar`) and its components such as `ScreenshotCard`. Screens are organized as one package per screen.
 - `navigation/` — `AppNavigation` (NavHost, `Routes`), `LinkViewModel` (pending incoming link), `extractPlaylistLink`.
-- `settings/`, `playlist/` — one package per screen, each with its screen, ViewModel and UI state.
+- `settings/` — Clean Architecture layers: `domain/` (pure Kotlin: `model/RoastLevel`, `repository/SettingsRepository`, `usecase/Get|SetRoastLevelUseCase`), `data/` (`SettingsDataSource` over DataStore, `SettingsRepositoryImpl`), `presentation/` (screen, ViewModel, UI state, `RoastLevelUi` string-res mapping). Dependencies point inward: presentation → domain ← data; `domain/` must not import `android.*` or `R`.
+- `playlist/` — one package per screen, with its screen, ViewModel and UI state.
 - `ui/theme/` — `AppTheme` (`Theme.kt`), `Color.kt`, `Type.kt`. Wrap all UI/previews in `AppTheme`.
 
-Architecture is lean MVVM (no DI): each screen with state has a `XViewModel` exposing `StateFlow<XUiState>` (plus a `Channel`-backed `events` flow for one-shots), a stateful `XScreen` that creates it via `viewModel { }` and collects with `collectAsStateWithLifecycle()`, and a stateless `XContent` that previews use. `SettingsViewModel` persists the roast level through the `SettingsStore` interface (DataStore impl).
+Architecture is lean MVVM (no DI): each screen with state has a `XViewModel` exposing `StateFlow<XUiState>` (plus a `Channel`-backed `events` flow for one-shots), a stateful `XScreen` that creates it via `viewModel { }` and collects with `collectAsStateWithLifecycle()`, and a stateless `XContent` that previews use. `SettingsViewModel` reads/persists the roast level through use cases over `SettingsRepository`; the screen wires the graph by hand (no DI).
 
 Note: `MainScreen.kt` uses `androidx.compose.material.icons.filled.*`; `material-icons-extended` is not in the catalog, so check the dependency before using icons beyond the core set.
