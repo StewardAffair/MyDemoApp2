@@ -2,10 +2,9 @@ package com.roman.mydemoapp.roast.data
 
 import com.roman.mydemoapp.roast.domain.model.RoastError
 import com.roman.mydemoapp.roast.domain.model.RoastException
-import io.ktor.client.statement.HttpResponse
-import io.ktor.http.isSuccess
 import kotlinx.coroutines.CancellationException
 import kotlinx.serialization.SerializationException
+import retrofit2.Response
 import java.io.IOException
 
 /** Runs [block], translating transport and parsing failures into [RoastException]. */
@@ -24,13 +23,21 @@ internal suspend fun <T> apiCall(block: suspend () -> T): T = try {
 }
 
 /** Throws a [RoastException] for non-2xx responses; [notFound] and [badRequest] let each API pick the meaning. */
-internal fun HttpResponse.ensureSuccess(
+internal fun <T> Response<T>.requireBody(
+    notFound: RoastError = RoastError.Unknown,
+    badRequest: RoastError = RoastError.BadResponse
+): T {
+    ensureSuccess(notFound, badRequest)
+    return body() ?: throw RoastException(RoastError.BadResponse)
+}
+
+internal fun Response<*>.ensureSuccess(
     notFound: RoastError = RoastError.Unknown,
     badRequest: RoastError = RoastError.BadResponse
 ) {
-    if (status.isSuccess()) return
+    if (isSuccessful) return
     throw RoastException(
-        when (status.value) {
+        when (code()) {
             400 -> badRequest
             401, 403 -> RoastError.Unauthorized
             404 -> notFound

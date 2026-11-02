@@ -31,7 +31,7 @@ Code lives under `app/src/main/java/com/roman/mydemoapp/`:
 - `mainscreen/` — the main screen (`MainScreen` is a `Scaffold` with a `TopAppBar`) and its components such as `ScreenshotCard`. Screens are organized as one package per screen.
 - `navigation/` — `AppNavigation` (NavHost, `Routes`), `LinkViewModel` (pending incoming link), `extractPlaylistLink`.
 - `settings/` — Clean Architecture layers: `domain/` (pure Kotlin: `model/RoastLevel`, `repository/SettingsRepository`, `usecase/Get|SetRoastLevelUseCase`), `data/` (`SettingsDataSource` over DataStore, `SettingsRepositoryImpl`), `presentation/` (screen, ViewModel, UI state, `RoastLevelUi` string-res mapping). Dependencies point inward: presentation → domain ← data; `domain/` must not import `android.*` or `R`.
-- `network/` — `HttpClientProvider`, the shared Ktor (OkHttp) client with JSON.
+- `network/` — `RetrofitProvider`, the shared OkHttp client + kotlinx-serialization Retrofit factory; `YoutubeApi`/`ClaudeApi` wrap Retrofit services.
 - `roast/` — Clean Architecture like `settings/`: `domain/` (models, `RoastError`/`RoastException`, `PlaylistRepository`/`RoastRepository`, `Roast*UseCase`, `extractYoutubePlaylistId`), `data/` (`YoutubeApi` for YouTube Data API v3, `ClaudeApi` for the Claude Messages API, `RoastPrompt`, `ScreenshotLoader`, repository impls). Repositories throw `RoastException`; the ViewModel maps it to `PlaylistUiState.error`.
 - `playlist/` — one package per screen, with its screen, ViewModel and UI state. `PlaylistViewModel` roasts a `PlaylistSource` (shared YouTube Music link or picked screenshot) on creation.
 - `ui/theme/` — `AppTheme` (`Theme.kt`), `Color.kt`, `Type.kt`. Wrap all UI/previews in `AppTheme`.

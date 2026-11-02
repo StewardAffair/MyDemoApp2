@@ -1,16 +1,13 @@
 package com.roman.mydemoapp.roast.data
 
 import com.roman.mydemoapp.BuildConfig
-import com.roman.mydemoapp.network.HttpClientProvider
-import io.ktor.client.HttpClient
-import io.ktor.client.call.body
-import io.ktor.client.request.header
-import io.ktor.client.request.post
-import io.ktor.client.request.setBody
-import io.ktor.http.ContentType
-import io.ktor.http.contentType
+import com.roman.mydemoapp.network.RetrofitProvider
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import retrofit2.Response
+import retrofit2.http.Body
+import retrofit2.http.Header
+import retrofit2.http.POST
 
 @Serializable
 internal data class MessagesRequest(
@@ -52,34 +49,35 @@ internal data class MessagesResponse(val content: List<ResponseBlock> = emptyLis
 @Serializable
 internal data class ResponseBlock(val type: String, val text: String? = null)
 
+internal interface ClaudeService {
+    @POST("v1/messages")
+    suspend fun messages(
+        @Header("x-api-key") apiKey: String,
+        @Header("anthropic-version") version: String,
+        @Body request: MessagesRequest
+    ): Response<MessagesResponse>
+}
+
 /** Claude Messages API (api.anthropic.com). */
 internal class ClaudeApi(
-    private val client: HttpClient = HttpClientProvider.client,
+    private val service: ClaudeService = RetrofitProvider.create(BASE_URL, ClaudeService::class.java),
     private val apiKey: String = BuildConfig.ANTHROPIC_API_KEY
 ) {
     /** Sends a single user turn and returns the concatenated text of the reply. */
     suspend fun complete(system: String, content: List<ContentBlock>): String {
-        val response = client.post(URL) {
-            header("x-api-key", apiKey)
-            header("anthropic-version", API_VERSION)
-            contentType(ContentType.Application.Json)
-            setBody(
-                MessagesRequest(
-                    model = MODEL,
-                    maxTokens = MAX_TOKENS,
-                    system = system,
-                    messages = listOf(Message(role = "user", content = content))
-                )
-            )
-        }
-        response.ensureSuccess()
-        return response.body<MessagesResponse>().content
+        val request = MessagesRequest(
+            model = MODEL,
+            maxTokens = MAX_TOKENS,
+            system = system,
+            messages = listOf(Message(role = "user", content = content))
+        )
+        return service.messages(apiKey, API_VERSION, request).requireBody().content
             .filter { it.type == "text" }
             .joinToString("") { it.text.orEmpty() }
     }
 
     private companion object {
-        const val URL = "https://api.anthropic.com/v1/messages"
+        const val BASE_URL = "https://api.anthropic.com/"
         const val API_VERSION = "2023-06-01"
         const val MODEL = "claude-sonnet-5-5"
         const val MAX_TOKENS = 1024
