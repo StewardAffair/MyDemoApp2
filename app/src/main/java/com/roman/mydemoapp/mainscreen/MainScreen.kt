@@ -1,5 +1,9 @@
 package com.roman.mydemoapp.mainscreen
 
+import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.PickVisualMediaRequest
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -27,16 +31,28 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalClipboardManager
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.roman.mydemoapp.R
+import com.roman.mydemoapp.navigation.extractUrl
 import com.roman.mydemoapp.ui.theme.AppTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MainScreen(onSettingsClick: () -> Unit) {
+fun MainScreen(
+    onSettingsClick: () -> Unit,
+    onLinkPasted: (String) -> Unit = {},
+    onScreenshotPicked: (String) -> Unit = {}
+) {
+    val context = LocalContext.current
+    val clipboard = LocalClipboardManager.current
+    val pickScreenshot = rememberLauncherForActivityResult(ActivityResultContracts.PickVisualMedia()) { uri ->
+        uri?.let { onScreenshotPicked(it.toString()) }
+    }
     Scaffold(
         topBar = {
             Column {
@@ -97,9 +113,22 @@ fun MainScreen(onSettingsClick: () -> Unit) {
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
             Spacer(Modifier.height(24.dp))
-            ScreenshotCard()
+            ScreenshotCard(
+                onPickFromGallery = {
+                    pickScreenshot.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
+                }
+            )
             OrDivider()
-            ShareCard()
+            ShareCard(
+                onPasteLink = {
+                    val link = clipboard.getText()?.text?.extractUrl()
+                    if (link != null) {
+                        onLinkPasted(link)
+                    } else {
+                        Toast.makeText(context, R.string.main_no_link_in_clipboard, Toast.LENGTH_SHORT).show()
+                    }
+                }
+            )
         }
     }
 }
