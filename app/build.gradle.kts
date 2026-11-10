@@ -5,6 +5,7 @@ plugins {
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.kotlin.serialization)
+    alias(libs.plugins.ksp)
 }
 
 val localProperties = Properties().apply {
@@ -14,6 +15,10 @@ val localProperties = Properties().apply {
 
 fun quotedProperty(name: String): String =
     "\"${localProperties.getProperty(name, "").trim()}\""
+
+ksp {
+    arg("room.schemaLocation", "$projectDir/schemas")
+}
 
 android {
     namespace = "com.roman.mydemoapp"
@@ -71,6 +76,9 @@ dependencies {
     implementation(libs.retrofit)
     implementation(libs.retrofit.converter.kotlinx.serialization)
     implementation(libs.okhttp)
+    implementation(libs.androidx.room.runtime)
+    implementation(libs.androidx.room.ktx)
+    ksp(libs.androidx.room.compiler)
     implementation(libs.kotlinx.serialization.json)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
