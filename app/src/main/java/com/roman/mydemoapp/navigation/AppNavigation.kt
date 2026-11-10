@@ -22,6 +22,10 @@ object Routes {
     const val SCREENSHOT_ARG = "uri"
     const val SCREENSHOT = "screenshot/{$SCREENSHOT_ARG}"
 
+    const val SAVED_ARG = "id"
+    const val SAVED = "saved/{$SAVED_ARG}"
+
+    fun saved(id: Long) = "saved/$id"
     fun playlist(url: String) = "playlist/${Uri.encode(url)}"
     fun screenshot(uri: String) = "screenshot/${Uri.encode(uri)}"
 }
@@ -41,7 +45,8 @@ fun AppNavigation(linkViewModel: LinkViewModel) {
             MainScreen(
                 onSettingsClick = { navController.navigate(Routes.SETTINGS) },
                 onLinkPasted = { navController.navigate(Routes.playlist(it)) },
-                onScreenshotPicked = { navController.navigate(Routes.screenshot(it)) }
+                onScreenshotPicked = { navController.navigate(Routes.screenshot(it)) },
+                onRoastClick = { navController.navigate(Routes.saved(it)) }
             )
         }
         composable(Routes.SETTINGS) {
@@ -50,6 +55,15 @@ fun AppNavigation(linkViewModel: LinkViewModel) {
         composable(
             route = Routes.PLAYLIST,
             arguments = listOf(navArgument(Routes.PLAYLIST_ARG) { type = NavType.StringType })
+        ) {
+            PlaylistScreen(
+                onBackClick = { navController.popBackStack() },
+                onSettingsClick = { navController.navigate(Routes.SETTINGS) }
+            )
+        }
+        composable(
+            route = Routes.SAVED,
+            arguments = listOf(navArgument(Routes.SAVED_ARG) { type = NavType.LongType })
         ) {
             PlaylistScreen(
                 onBackClick = { navController.popBackStack() },
