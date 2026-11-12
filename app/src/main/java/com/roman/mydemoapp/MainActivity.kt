@@ -5,14 +5,14 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.activity.viewModels
 import com.roman.mydemoapp.navigation.AppNavigation
 import com.roman.mydemoapp.navigation.LinkViewModel
 import com.roman.mydemoapp.navigation.extractPlaylistLink
 import com.roman.mydemoapp.ui.theme.AppTheme
+import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class MainActivity : ComponentActivity() {
-    private val linkViewModel: LinkViewModel by viewModels()
+    private val linkViewModel: LinkViewModel by viewModel()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
