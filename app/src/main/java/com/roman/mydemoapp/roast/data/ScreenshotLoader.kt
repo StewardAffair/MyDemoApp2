@@ -7,15 +7,17 @@ import android.net.Uri
 import android.util.Base64
 import com.roman.mydemoapp.roast.domain.model.RoastError
 import com.roman.mydemoapp.roast.domain.model.RoastException
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.ByteArrayOutputStream
+import javax.inject.Inject
 
 private const val MAX_SIDE = 1568
 private const val JPEG_QUALITY = 80
 
 /** Reads a picked image, downscales it and returns it as base64 JPEG for the Claude vision API. */
-internal class ScreenshotLoader(context: Context) {
+internal class ScreenshotLoader @Inject constructor(@ApplicationContext context: Context) {
     private val resolver = context.applicationContext.contentResolver
 
     suspend fun loadBase64Jpeg(uriString: String): String = withContext(Dispatchers.IO) {

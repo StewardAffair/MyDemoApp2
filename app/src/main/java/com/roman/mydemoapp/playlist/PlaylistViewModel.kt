@@ -2,6 +2,7 @@ package com.roman.mydemoapp.playlist
 
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
+import dagger.hilt.android.lifecycle.HiltViewModel
 import androidx.lifecycle.viewModelScope
 import com.roman.mydemoapp.history.domain.model.SavedRoast
 import com.roman.mydemoapp.history.domain.usecase.GetSavedRoastUseCase
@@ -21,6 +22,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 sealed interface PlaylistSource {
     data class Link(val url: String) : PlaylistSource
@@ -54,13 +56,16 @@ sealed interface PlaylistEvent {
     data class Share(val text: String) : PlaylistEvent
 }
 
-class PlaylistViewModel(
-    private val source: PlaylistSource,
+@HiltViewModel
+class PlaylistViewModel @Inject constructor(
+    savedStateHandle: SavedStateHandle,
     private val roastPlaylist: RoastPlaylistUseCase,
     private val roastScreenshot: RoastScreenshotUseCase,
     private val saveRoast: SaveRoastUseCase,
     private val getSavedRoast: GetSavedRoastUseCase
 ) : ViewModel() {
+    private val source = PlaylistSource.from(savedStateHandle)
+
     private val _uiState = MutableStateFlow(PlaylistUiState(fromScreenshot = source is PlaylistSource.Screenshot))
     val uiState: StateFlow<PlaylistUiState> = _uiState.asStateFlow()
 

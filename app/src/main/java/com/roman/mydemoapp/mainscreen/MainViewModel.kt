@@ -1,6 +1,7 @@
 package com.roman.mydemoapp.mainscreen
 
 import androidx.lifecycle.ViewModel
+import dagger.hilt.android.lifecycle.HiltViewModel
 import androidx.lifecycle.viewModelScope
 import com.roman.mydemoapp.history.domain.model.SavedRoast
 import com.roman.mydemoapp.history.domain.usecase.DeleteRoastUseCase
@@ -10,12 +11,14 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 private const val RECENT_LIMIT = 5
 
 data class MainUiState(val recent: List<SavedRoast> = emptyList())
 
-class MainViewModel(
+@HiltViewModel
+class MainViewModel @Inject constructor(
     observeRecent: ObserveRecentRoastsUseCase,
     private val deleteRoast: DeleteRoastUseCase
 ) : ViewModel() {

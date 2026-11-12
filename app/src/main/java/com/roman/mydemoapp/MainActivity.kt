@@ -6,11 +6,13 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
+import dagger.hilt.android.AndroidEntryPoint
 import com.roman.mydemoapp.navigation.AppNavigation
 import com.roman.mydemoapp.navigation.LinkViewModel
 import com.roman.mydemoapp.navigation.extractPlaylistLink
 import com.roman.mydemoapp.ui.theme.AppTheme
 
+@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     private val linkViewModel: LinkViewModel by viewModels()
 

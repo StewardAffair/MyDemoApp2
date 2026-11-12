@@ -49,25 +49,13 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.lifecycle.createSavedStateHandle
 import com.roman.mydemoapp.R
-import com.roman.mydemoapp.history.data.AppDatabase
-import com.roman.mydemoapp.history.data.HistoryRepositoryImpl
-import com.roman.mydemoapp.history.domain.usecase.GetSavedRoastUseCase
-import com.roman.mydemoapp.history.domain.usecase.SaveRoastUseCase
 import com.roman.mydemoapp.mainscreen.OptionCard
-import com.roman.mydemoapp.roast.data.PlaylistRepositoryImpl
-import com.roman.mydemoapp.roast.data.RoastRepositoryImpl
 import com.roman.mydemoapp.roast.domain.model.RoastError
 import com.roman.mydemoapp.roast.domain.model.RoastedPlaylist
-import com.roman.mydemoapp.roast.domain.usecase.RoastPlaylistUseCase
-import com.roman.mydemoapp.roast.domain.usecase.RoastScreenshotUseCase
-import com.roman.mydemoapp.settings.data.SettingsDataSource
-import com.roman.mydemoapp.settings.data.SettingsRepositoryImpl
 import com.roman.mydemoapp.settings.domain.model.RoastLevel
-import com.roman.mydemoapp.settings.domain.usecase.GetRoastLevelUseCase
 import com.roman.mydemoapp.settings.presentation.title
 import com.roman.mydemoapp.ui.theme.AppTheme
 
@@ -82,18 +70,7 @@ fun PlaylistScreen(
     onAnotherPlaylistClick: () -> Unit = onBackClick
 ) {
     val context = LocalContext.current
-    val viewModel = viewModel {
-        val getRoastLevel = GetRoastLevelUseCase(SettingsRepositoryImpl(SettingsDataSource(context)))
-        val roastRepository = RoastRepositoryImpl(context)
-        val historyRepository = HistoryRepositoryImpl(AppDatabase.get(context).roastDao())
-        PlaylistViewModel(
-            source = PlaylistSource.from(createSavedStateHandle()),
-            roastPlaylist = RoastPlaylistUseCase(PlaylistRepositoryImpl(), roastRepository, getRoastLevel),
-            roastScreenshot = RoastScreenshotUseCase(roastRepository, getRoastLevel),
-            saveRoast = SaveRoastUseCase(historyRepository),
-            getSavedRoast = GetSavedRoastUseCase(historyRepository)
-        )
-    }
+    val viewModel: PlaylistViewModel = hiltViewModel()
     val state by viewModel.uiState.collectAsStateWithLifecycle()
     LaunchedEffect(viewModel) {
         viewModel.events.collect { event ->

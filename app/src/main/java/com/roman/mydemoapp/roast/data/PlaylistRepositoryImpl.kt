@@ -6,13 +6,12 @@ import com.roman.mydemoapp.roast.domain.model.RoastError
 import com.roman.mydemoapp.roast.domain.model.RoastException
 import com.roman.mydemoapp.roast.domain.model.Track
 import com.roman.mydemoapp.roast.domain.repository.PlaylistRepository
+import javax.inject.Inject
 
 private const val MAX_TRACKS = 200
 private val unavailableTitles = setOf("Private video", "Deleted video")
 
-class PlaylistRepositoryImpl internal constructor(private val api: YoutubeApi) : PlaylistRepository {
-    constructor() : this(YoutubeApi())
-
+class PlaylistRepositoryImpl @Inject internal constructor(private val api: YoutubeApi) : PlaylistRepository {
     override suspend fun getPlaylist(url: String): Playlist = apiCall {
         val id = extractYoutubePlaylistId(url) ?: throw RoastException(RoastError.UnsupportedLink)
         val title = api.getPlaylistTitle(id) ?: throw RoastException(RoastError.PlaylistNotFound)
