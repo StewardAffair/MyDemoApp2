@@ -1,6 +1,5 @@
 package com.roman.mydemoapp.roast.data
 
-import android.content.Context
 import com.roman.mydemoapp.roast.domain.model.Playlist
 import com.roman.mydemoapp.roast.domain.model.RoastError
 import com.roman.mydemoapp.roast.domain.model.RoastException
@@ -25,8 +24,6 @@ class RoastRepositoryImpl internal constructor(
     private val api: ClaudeApi,
     private val screenshotLoader: ScreenshotLoader
 ) : RoastRepository {
-    constructor(context: Context) : this(ClaudeApi(), ScreenshotLoader(context))
-
     override suspend fun roast(playlist: Playlist, level: RoastLevel): RoastResult = apiCall {
         val reply = api.complete(
             system = RoastPrompt.system(level, fromScreenshot = false),

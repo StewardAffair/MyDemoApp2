@@ -39,14 +39,10 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.roman.mydemoapp.R
-import com.roman.mydemoapp.history.data.AppDatabase
-import com.roman.mydemoapp.history.data.HistoryRepositoryImpl
-import com.roman.mydemoapp.history.domain.usecase.DeleteRoastUseCase
-import com.roman.mydemoapp.history.domain.usecase.ObserveRecentRoastsUseCase
 import com.roman.mydemoapp.navigation.extractUrl
 import com.roman.mydemoapp.ui.theme.AppTheme
+import org.koin.androidx.compose.koinViewModel
 
 @Composable
 fun MainScreen(
@@ -55,11 +51,7 @@ fun MainScreen(
     onScreenshotPicked: (String) -> Unit,
     onRoastClick: (Long) -> Unit
 ) {
-    val context = LocalContext.current
-    val viewModel = viewModel {
-        val repository = HistoryRepositoryImpl(AppDatabase.get(context).roastDao())
-        MainViewModel(ObserveRecentRoastsUseCase(repository), DeleteRoastUseCase(repository))
-    }
+    val viewModel = koinViewModel<MainViewModel>()
     val state by viewModel.uiState.collectAsStateWithLifecycle()
     MainContent(
         state = state,

@@ -11,8 +11,6 @@ private const val MAX_TRACKS = 200
 private val unavailableTitles = setOf("Private video", "Deleted video")
 
 class PlaylistRepositoryImpl internal constructor(private val api: YoutubeApi) : PlaylistRepository {
-    constructor() : this(YoutubeApi())
-
     override suspend fun getPlaylist(url: String): Playlist = apiCall {
         val id = extractYoutubePlaylistId(url) ?: throw RoastException(RoastError.UnsupportedLink)
         val title = api.getPlaylistTitle(id) ?: throw RoastException(RoastError.PlaylistNotFound)

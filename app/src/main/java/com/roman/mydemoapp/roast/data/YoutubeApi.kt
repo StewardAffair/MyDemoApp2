@@ -1,7 +1,5 @@
 package com.roman.mydemoapp.roast.data
 
-import com.roman.mydemoapp.BuildConfig
-import com.roman.mydemoapp.network.RetrofitProvider
 import com.roman.mydemoapp.roast.domain.model.RoastError
 import kotlinx.serialization.Serializable
 import retrofit2.Response
@@ -50,8 +48,8 @@ internal interface YoutubeService {
 
 /** YouTube Data API v3. Only public and unlisted playlists are readable with an API key. */
 internal class YoutubeApi(
-    private val service: YoutubeService = RetrofitProvider.create(BASE_URL, YoutubeService::class.java),
-    private val apiKey: String = BuildConfig.YOUTUBE_API_KEY
+    private val service: YoutubeService,
+    private val apiKey: String
 ) {
     suspend fun getPlaylistTitle(playlistId: String): String? =
         service.playlists(playlistId, apiKey)
@@ -61,8 +59,4 @@ internal class YoutubeApi(
     suspend fun getPlaylistItems(playlistId: String, pageToken: String?): PlaylistItemsDto =
         service.playlistItems(playlistId, pageToken, apiKey)
             .requireBody(notFound = RoastError.PlaylistNotFound, badRequest = RoastError.Unauthorized)
-
-    private companion object {
-        const val BASE_URL = "https://www.googleapis.com/youtube/v3/"
-    }
 }

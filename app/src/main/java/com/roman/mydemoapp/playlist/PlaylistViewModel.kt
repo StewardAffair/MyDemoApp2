@@ -55,12 +55,14 @@ sealed interface PlaylistEvent {
 }
 
 class PlaylistViewModel(
-    private val source: PlaylistSource,
+    savedStateHandle: SavedStateHandle,
     private val roastPlaylist: RoastPlaylistUseCase,
     private val roastScreenshot: RoastScreenshotUseCase,
     private val saveRoast: SaveRoastUseCase,
     private val getSavedRoast: GetSavedRoastUseCase
 ) : ViewModel() {
+    private val source = PlaylistSource.from(savedStateHandle)
+
     private val _uiState = MutableStateFlow(PlaylistUiState(fromScreenshot = source is PlaylistSource.Screenshot))
     val uiState: StateFlow<PlaylistUiState> = _uiState.asStateFlow()
 

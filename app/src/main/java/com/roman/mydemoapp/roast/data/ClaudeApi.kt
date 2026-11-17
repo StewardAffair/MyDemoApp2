@@ -1,7 +1,5 @@
 package com.roman.mydemoapp.roast.data
 
-import com.roman.mydemoapp.BuildConfig
-import com.roman.mydemoapp.network.RetrofitProvider
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import retrofit2.Response
@@ -60,8 +58,8 @@ internal interface ClaudeService {
 
 /** Claude Messages API (api.anthropic.com). */
 internal class ClaudeApi(
-    private val service: ClaudeService = RetrofitProvider.create(BASE_URL, ClaudeService::class.java),
-    private val apiKey: String = BuildConfig.ANTHROPIC_API_KEY
+    private val service: ClaudeService,
+    private val apiKey: String
 ) {
     /** Sends a single user turn and returns the concatenated text of the reply. */
     suspend fun complete(system: String, content: List<ContentBlock>): String {
@@ -77,7 +75,6 @@ internal class ClaudeApi(
     }
 
     private companion object {
-        const val BASE_URL = "https://api.anthropic.com/"
         const val API_VERSION = "2023-06-01"
         const val MODEL = "claude-sonnet-5-5"
         const val MAX_TOKENS = 1024
