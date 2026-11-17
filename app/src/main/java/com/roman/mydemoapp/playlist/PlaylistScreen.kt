@@ -53,6 +53,10 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.lifecycle.createSavedStateHandle
 import com.roman.mydemoapp.R
+import com.roman.mydemoapp.history.data.AppDatabase
+import com.roman.mydemoapp.history.data.HistoryRepositoryImpl
+import com.roman.mydemoapp.history.domain.usecase.GetSavedRoastUseCase
+import com.roman.mydemoapp.history.domain.usecase.SaveRoastUseCase
 import com.roman.mydemoapp.mainscreen.OptionCard
 import com.roman.mydemoapp.roast.data.PlaylistRepositoryImpl
 import com.roman.mydemoapp.roast.data.RoastRepositoryImpl
@@ -81,10 +85,13 @@ fun PlaylistScreen(
     val viewModel = viewModel {
         val getRoastLevel = GetRoastLevelUseCase(SettingsRepositoryImpl(SettingsDataSource(context)))
         val roastRepository = RoastRepositoryImpl(context)
+        val historyRepository = HistoryRepositoryImpl(AppDatabase.get(context).roastDao())
         PlaylistViewModel(
             source = PlaylistSource.from(createSavedStateHandle()),
             roastPlaylist = RoastPlaylistUseCase(PlaylistRepositoryImpl(), roastRepository, getRoastLevel),
-            roastScreenshot = RoastScreenshotUseCase(roastRepository, getRoastLevel)
+            roastScreenshot = RoastScreenshotUseCase(roastRepository, getRoastLevel),
+            saveRoast = SaveRoastUseCase(historyRepository),
+            getSavedRoast = GetSavedRoastUseCase(historyRepository)
         )
     }
     val state by viewModel.uiState.collectAsStateWithLifecycle()
@@ -174,7 +181,12 @@ internal fun PlaylistContent(
                     roasted != null -> {
                         PlaylistInfoCard(roasted)
                         Spacer(Modifier.height(16.dp))
-                        VerdictCard(roasted, onShareClick = onShareClick, onRoastAgainClick = onRoastAgainClick)
+                        VerdictCard(
+                            roasted,
+                            canRoastAgain = state.canRoastAgain,
+                            onShareClick = onShareClick,
+                            onRoastAgainClick = onRoastAgainClick
+                        )
                     }
                 }
             }
@@ -274,6 +286,7 @@ private fun PlaylistInfoCard(roasted: RoastedPlaylist) {
 @Composable
 private fun VerdictCard(
     roasted: RoastedPlaylist,
+    canRoastAgain: Boolean,
     onShareClick: () -> Unit,
     onRoastAgainClick: () -> Unit
 ) {
@@ -324,7 +337,9 @@ private fun VerdictCard(
         Spacer(Modifier.height(16.dp))
         Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
             VerdictButton(R.string.playlist_share_button, Icons.Default.Share, onShareClick)
-            VerdictButton(R.string.playlist_roast_again_button, Icons.Default.Refresh, onRoastAgainClick)
+            if (canRoastAgain) {
+                VerdictButton(R.string.playlist_roast_again_button, Icons.Default.Refresh, onRoastAgainClick)
+            }
         }
     }
 }

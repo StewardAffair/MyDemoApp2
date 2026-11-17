@@ -29,6 +29,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalClipboardManager
@@ -37,16 +38,48 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.roman.mydemoapp.R
+import com.roman.mydemoapp.history.data.AppDatabase
+import com.roman.mydemoapp.history.data.HistoryRepositoryImpl
+import com.roman.mydemoapp.history.domain.usecase.DeleteRoastUseCase
+import com.roman.mydemoapp.history.domain.usecase.ObserveRecentRoastsUseCase
 import com.roman.mydemoapp.navigation.extractUrl
 import com.roman.mydemoapp.ui.theme.AppTheme
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MainScreen(
     onSettingsClick: () -> Unit,
+    onLinkPasted: (String) -> Unit,
+    onScreenshotPicked: (String) -> Unit,
+    onRoastClick: (Long) -> Unit
+) {
+    val context = LocalContext.current
+    val viewModel = viewModel {
+        val repository = HistoryRepositoryImpl(AppDatabase.get(context).roastDao())
+        MainViewModel(ObserveRecentRoastsUseCase(repository), DeleteRoastUseCase(repository))
+    }
+    val state by viewModel.uiState.collectAsStateWithLifecycle()
+    MainContent(
+        state = state,
+        onSettingsClick = onSettingsClick,
+        onLinkPasted = onLinkPasted,
+        onScreenshotPicked = onScreenshotPicked,
+        onRoastClick = onRoastClick,
+        onDeleteClick = viewModel::onDeleteClick
+    )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+internal fun MainContent(
+    state: MainUiState,
+    onSettingsClick: () -> Unit,
     onLinkPasted: (String) -> Unit = {},
-    onScreenshotPicked: (String) -> Unit = {}
+    onScreenshotPicked: (String) -> Unit = {},
+    onRoastClick: (Long) -> Unit = {},
+    onDeleteClick: (Long) -> Unit = {}
 ) {
     val context = LocalContext.current
     val clipboard = LocalClipboardManager.current
@@ -129,6 +162,9 @@ fun MainScreen(
                     }
                 }
             )
+            if (state.recent.isNotEmpty()) {
+                RecentSection(state.recent, onItemClick = onRoastClick, onDeleteClick = onDeleteClick)
+            }
         }
     }
 }
@@ -162,6 +198,6 @@ private fun OrDivider() {
 @Composable
 private fun MainScreenPreview() {
     AppTheme {
-        MainScreen(onSettingsClick = {})
+        MainContent(state = MainUiState(), onSettingsClick = {})
     }
 }
