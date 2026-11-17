@@ -5,8 +5,9 @@ import com.roman.mydemoapp.roast.domain.repository.PlaylistRepository
 import com.roman.mydemoapp.roast.domain.repository.RoastRepository
 import com.roman.mydemoapp.settings.domain.usecase.GetRoastLevelUseCase
 import kotlinx.coroutines.flow.first
+import javax.inject.Inject
 
-class RoastPlaylistUseCase(
+class RoastPlaylistUseCase @Inject constructor(
     private val playlistRepository: PlaylistRepository,
     private val roastRepository: RoastRepository,
     private val getRoastLevel: GetRoastLevelUseCase
@@ -19,7 +20,7 @@ class RoastPlaylistUseCase(
     }
 }
 
-class RoastScreenshotUseCase(
+class RoastScreenshotUseCase @Inject constructor(
     private val roastRepository: RoastRepository,
     private val getRoastLevel: GetRoastLevelUseCase
 ) {

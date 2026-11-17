@@ -5,8 +5,9 @@ import com.roman.mydemoapp.settings.domain.model.RoastLevel
 import com.roman.mydemoapp.settings.domain.repository.SettingsRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import javax.inject.Inject
 
-class SettingsRepositoryImpl(private val dataSource: SettingsDataSource) : SettingsRepository {
+class SettingsRepositoryImpl @Inject constructor(private val dataSource: SettingsDataSource) : SettingsRepository {
     override val roastLevel: Flow<RoastLevel> = dataSource.roastLevelOrdinal.map { ordinal ->
         RoastLevel.entries.getOrNull(ordinal ?: -1) ?: DEFAULT_LEVEL
     }

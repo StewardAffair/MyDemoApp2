@@ -1,6 +1,7 @@
 package com.roman.mydemoapp.settings.presentation
 
 import androidx.lifecycle.ViewModel
+import dagger.hilt.android.lifecycle.HiltViewModel
 import androidx.lifecycle.viewModelScope
 import com.roman.mydemoapp.settings.domain.model.DEFAULT_LEVEL
 import com.roman.mydemoapp.settings.domain.model.RoastLevel
@@ -12,10 +13,12 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 data class SettingsUiState(val level: RoastLevel = DEFAULT_LEVEL)
 
-class SettingsViewModel(
+@HiltViewModel
+class SettingsViewModel @Inject constructor(
     private val getRoastLevel: GetRoastLevelUseCase,
     private val setRoastLevel: SetRoastLevelUseCase
 ) : ViewModel() {

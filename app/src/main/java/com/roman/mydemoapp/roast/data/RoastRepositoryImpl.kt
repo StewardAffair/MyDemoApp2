@@ -1,6 +1,5 @@
 package com.roman.mydemoapp.roast.data
 
-import android.content.Context
 import com.roman.mydemoapp.roast.domain.model.Playlist
 import com.roman.mydemoapp.roast.domain.model.RoastError
 import com.roman.mydemoapp.roast.domain.model.RoastException
@@ -9,6 +8,7 @@ import com.roman.mydemoapp.roast.domain.repository.RoastRepository
 import com.roman.mydemoapp.settings.domain.model.RoastLevel
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
+import javax.inject.Inject
 
 @Serializable
 private data class RoastJson(
@@ -21,12 +21,10 @@ private data class RoastJson(
 
 private val json = Json { ignoreUnknownKeys = true }
 
-class RoastRepositoryImpl internal constructor(
+class RoastRepositoryImpl @Inject internal constructor(
     private val api: ClaudeApi,
     private val screenshotLoader: ScreenshotLoader
 ) : RoastRepository {
-    constructor(context: Context) : this(ClaudeApi(), ScreenshotLoader(context))
-
     override suspend fun roast(playlist: Playlist, level: RoastLevel): RoastResult = apiCall {
         val reply = api.complete(
             system = RoastPrompt.system(level, fromScreenshot = false),

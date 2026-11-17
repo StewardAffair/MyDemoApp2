@@ -7,8 +7,9 @@ import com.roman.mydemoapp.settings.domain.model.DEFAULT_LEVEL
 import com.roman.mydemoapp.settings.domain.model.RoastLevel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import javax.inject.Inject
 
-class HistoryRepositoryImpl(private val dao: RoastDao) : HistoryRepository {
+class HistoryRepositoryImpl @Inject constructor(private val dao: RoastDao) : HistoryRepository {
     override fun observeRecent(limit: Int): Flow<List<SavedRoast>> =
         dao.observeRecent(limit).map { list -> list.map { it.toDomain() } }
 

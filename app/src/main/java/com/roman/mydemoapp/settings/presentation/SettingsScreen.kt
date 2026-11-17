@@ -30,31 +30,22 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.roman.mydemoapp.R
-import com.roman.mydemoapp.settings.data.SettingsDataSource
-import com.roman.mydemoapp.settings.data.SettingsRepositoryImpl
 import com.roman.mydemoapp.settings.domain.model.RoastLevel
-import com.roman.mydemoapp.settings.domain.usecase.GetRoastLevelUseCase
-import com.roman.mydemoapp.settings.domain.usecase.SetRoastLevelUseCase
 import com.roman.mydemoapp.ui.theme.AppTheme
 import kotlin.math.roundToInt
 
 @Composable
 fun SettingsScreen(onBackClick: () -> Unit) {
-    val context = LocalContext.current
-    val viewModel = viewModel {
-        val repository = SettingsRepositoryImpl(SettingsDataSource(context))
-        SettingsViewModel(GetRoastLevelUseCase(repository), SetRoastLevelUseCase(repository))
-    }
+    val viewModel: SettingsViewModel = hiltViewModel()
     val state by viewModel.uiState.collectAsStateWithLifecycle()
     SettingsContent(
         level = state.level,
